@@ -5,7 +5,7 @@ const mongoose = require('mongoose')
 // Put this handle function on the top of the file so it can catch the error correctly
 process.on('uncaughtException', err => {
   console.log('UNCAUGHT EXCEPTION! 💥 Shutting down...')
-  console.log({ 'error-name': err.name }, { 'err.message': err.message })
+  console.log({ 'error-name': err.name }, { 'err.message': err.message }, { 'err.stack': err.stack })
 
   // Synchronous code does not need to wait the server close
   process.exit(1)
@@ -49,7 +49,7 @@ const server = app.listen(port, () => {
 // handle unhandled rejections for asynchronous code (outside of Express)
 process.on('unhandledRejection', err => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...')
-  console.log({ 'error-name': err.name }, { 'err.message': err.message })
+  console.log({ 'error-name': err.name }, { 'err.message': err.message }, { 'err.stack': err.stack })
 
   // Only exit after the sever is closed
   server.close(() => {

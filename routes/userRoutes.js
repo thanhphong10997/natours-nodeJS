@@ -12,10 +12,11 @@ router.patch('/reset-password/:token', authController.resetPassword)
 router.patch('/update-my-password', authController.protect, authController.updatePassword)
 
 // modify user data
+router.route('/me').get(authController.protect, userController.getMe, userController.getUser)
 router.patch('/update-me', authController.protect, userController.updateMe)
 router.delete('/delete-me', authController.protect, userController.deleteMe)
 
-router.route('/').get(userController.getAllUsers).post(userController.createUser)
+router.route('/').get(userController.getAllUsers)
 
 router.route('/:id').get(userController.getUser).patch(userController.updateUser).delete(userController.deleteUser)
 

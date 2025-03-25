@@ -1,6 +1,7 @@
 const catchAsync = require('../utils/catchAsync')
 const User = require('../models/userModel')
 const AppError = require('../utils/appError')
+const factory = require('./handleFactory')
 
 exports.checkBody = (req, res, next, val) => {
   return res.status(500).json({
@@ -9,17 +10,17 @@ exports.checkBody = (req, res, next, val) => {
   })
 }
 
-exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find()
+// exports.getAllUsers = catchAsync(async (req, res, next) => {
+//   const users = await User.find()
 
-  return res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users
-    }
-  })
-})
+//   return res.status(200).json({
+//     status: 'success',
+//     results: users.length,
+//     data: {
+//       users
+//     }
+//   })
+// })
 
 // ********* Filter OBJECT FROM REQUEST BODY
 // Solution 1
@@ -73,30 +74,15 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.getUser = (req, res) => {
-  return res.status(500).json({
-    status: 'fail',
-    message: 'The route is not defined'
-  })
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user._id
+  next()
 }
 
-exports.createUser = (req, res) => {
-  return res.status(500).json({
-    status: 'fail',
-    message: 'The route is not defined'
-  })
-}
+exports.getAllUsers = factory.getAll(User)
 
-exports.updateUser = (req, res) => {
-  return res.status(500).json({
-    status: 'fail',
-    message: 'The route is not defined'
-  })
-}
+exports.getUser = factory.getOne(User)
 
-exports.deleteUser = (req, res) => {
-  return res.status(500).json({
-    status: 'fail',
-    message: 'The route is not defined'
-  })
-}
+exports.updateUser = factory.updateOne(User)
+
+exports.deleteUser = factory.deleteOne(User)
