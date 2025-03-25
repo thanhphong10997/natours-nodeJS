@@ -2,6 +2,7 @@ const express = require('express')
 const tourController = require('../controllers/tourController')
 const authController = require('../controllers/authController')
 const reviewController = require('../controllers/reviewController')
+const reviewRouter = require('./reviewRoute')
 
 const router = express.Router()
 
@@ -24,8 +25,11 @@ router
 // POST /tours/234fad4/reviews -> create a review for the tour has an id: 234fad4
 // GET /tours/234fad4/reviews  -> get all reviews of the tour has an id: 234fad4
 // GET /tours/234fad4/reviews/1234fads  -> get a review which has an id: 1234fads of the tour has an id: 234fad4
-router
-  .route('/:tourId/reviews')
-  .post(authController.protect, authController.restrictTo('user'), reviewController.createReview)
+// router
+//   .route('/:tourId/reviews')
+//   .post(authController.protect, authController.restrictTo('user'), reviewController.createReview)
+
+// Mounting the route (/:tourId/reviews) to the root router of the Review router
+router.use('/:tourId/reviews', reviewRouter)
 
 module.exports = router
