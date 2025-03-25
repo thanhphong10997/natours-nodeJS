@@ -134,10 +134,12 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.getTour = catchAsync((req, res, next) => {
+exports.getTour = catchAsync(async (req, res, next) => {
   const id = req.params.id
-  const tour = Tour.findById(id) // similar to Tour.findOne({_id: id})
 
+  // Tour.findById(id) similar to Tour.findOne({_id: id})
+
+  const tour = await Tour.findById(id).populate('reviews') // populate the virtual review property
   res.status(200).json({
     status: 'success',
     data: {

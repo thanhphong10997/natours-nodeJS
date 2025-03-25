@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const slugify = require('slugify')
 const validator = require('validator')
+// const User = require('./userModel')
 
 // create documents from the model
 const tourSchema = new mongoose.Schema(
@@ -85,8 +86,45 @@ const tourSchema = new mongoose.Schema(
     secretTour: {
       type: Boolean,
       default: false
-    }
+    },
+
+    // define start location
+    startLocation: {
+      // GeoJson
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point']
+      },
+      coordinates: [Number], // [longitude, latitude] of the map
+      address: String,
+      description: String
+    },
+
+    // define an array which means create a new document and embedded it into the the parent document
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point']
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number
+      }
+    ],
+    // guides: Array    // define for embedding method
+    // define for reference method (child reference)
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User' // reference to User model
+      }
+    ]
   },
+
   {
     // add virtual properties for output in Object format or in JSON format
     toJSON: { virtuals: true },
@@ -98,6 +136,13 @@ const tourSchema = new mongoose.Schema(
 // Note: can't use virtual for query because virtual properties is not a part of the DB
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7
+})
+
+// Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', // point to the tour property on the Review model
+  localField: '_id' // point to the _id property on this Tour model
 })
 
 // ****** Document middleware:
@@ -129,9 +174,30 @@ tourSchema.pre(/^find/, function (next) {
   next()
 })
 
+// Add populate to all find query methods
+// NOTE: the populate method is executed to create a new query so the result won't show in the DB
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -changedPasswordAt'
+  })
+  next()
+})
+
 // tourSchema.post(/^find/, function (docs, next) {
 //   next()
 // })
+
+// ******* Embedding the user document to the tour document
+// NOTE: This middleware only works on the save() and create() methods so it won't work on the update() methods
+// So we need to create a middleware function for update methods too but we don't want that because when the guide user update his information,
+// we'll also need to check and update his information in tour document
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromise = this.guides.map(async id => await User.findById(id))
+//   this.guides = await Promise.all(guidesPromise)
+//   next()
+// })
+// ******* Embedding the user document to the tour document
 
 // ******* Aggregation middleware
 tourSchema.pre('aggregate', function (next) {
@@ -141,6 +207,7 @@ tourSchema.pre('aggregate', function (next) {
   })
   next()
 })
+// ******* Aggregation middleware
 
 const Tour = mongoose.model('Tour', tourSchema)
 
