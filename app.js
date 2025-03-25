@@ -13,6 +13,7 @@ const globalErrorHandler = require('./controllers/errorController')
 // routes
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes')
+const reviewRouter = require('./routes/reviewRoute')
 
 // *********Global middlewares
 // Set security HTTP headers
@@ -67,6 +68,7 @@ app.use((req, res, next) => {
 // mounting the routes
 app.use('/api/v1/tours', tourRouter)
 app.use('/api/v1/users', userRouter)
+app.use('/api/v1/reviews', reviewRouter)
 
 // ******** handle all unhandled routes middleware
 // .all() which means all of the http methods (get,post,put,patch,delete)
