@@ -1,7 +1,6 @@
 const Tour = require('../models/tourModel')
-const APIFeatures = require('../utils/apiFeatures')
 const catchAsync = require('../utils/catchAsync')
-
+const factory = require('./handleFactory')
 // exports.checkId = (req, res, next, val) => {
 //   // only route.param have the fourth parameter (val) is the value of the route parameter
 //   const id = +req.params.id
@@ -116,76 +115,87 @@ exports.getTourStats = catchAsync(async (req, res, next) => {
   })
 })
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  // console.log(req.query)
-  const queryParams = req.query
-  const features = new APIFeatures(Tour.find(), queryParams).filter().sort().limitFields().paginate()
+// exports.getAllTours = catchAsync(async (req, res, next) => {
+//   // console.log(req.query)
+//   const queryParams = req.query
+//   const features = new APIFeatures(Tour.find(), queryParams).filter().sort().limitFields().paginate()
 
-  // execute the query
-  const tours = await features.query
+//   // execute the query
+//   const tours = await features.query
 
-  // Send response
-  res.status(200).json({
-    status: 'success',
-    result: tours.length,
-    data: {
-      tours
-    }
-  })
-})
+//   // Send response
+//   res.status(200).json({
+//     status: 'success',
+//     result: tours.length,
+//     data: {
+//       tours
+//     }
+//   })
+// })
 
-exports.getTour = catchAsync(async (req, res, next) => {
-  const id = req.params.id
+exports.getAllTours = factory.getAll(Tour)
 
-  // Tour.findById(id) similar to Tour.findOne({_id: id})
+// exports.getTour = catchAsync(async (req, res, next) => {
+//   const id = req.params.id
 
-  const tour = await Tour.findById(id).populate('reviews') // populate the virtual review property
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour
-    }
-  })
-})
+//   // Tour.findById(id) similar to Tour.findOne({_id: id})
+
+//   const tour = await Tour.findById(id).populate('reviews') // populate the virtual review property
+//   res.status(200).json({
+//     status: 'success',
+//     data: {
+//       tour
+//     }
+//   })
+// })
+
+exports.getTour = factory.getOne(Tour, { path: 'reviews' })
 
 // To avoid using catch block in our async function, we can use another function wrap the async function
 // then the wrapper function will return a anonymous function that contains the result of the async function which users call when create tour
-exports.createTour = catchAsync(async (req, res, next) => {
-  // one way to create a new tour
-  // const newTour = new Tour(req.body)
-  // newTour.save()
+// exports.createTour = catchAsync(async (req, res, next) => {
+//   // one way to create a new tour
+//   // const newTour = new Tour(req.body)
+//   // newTour.save()
 
-  // Another way to create a new tour
+//   // Another way to create a new tour
 
-  const newTour = await Tour.create(req.body)
-  return res.status(200).json({
-    status: 'success',
-    data: {
-      tour: newTour
-    }
-  })
-})
+//   const newTour = await Tour.create(req.body)
+//   return res.status(200).json({
+//     status: 'success',
+//     data: {
+//       tour: newTour
+//     }
+//   })
+// })
 
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const id = req.params.id
-  const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
-    new: true, // return the modified document rather than the original
-    runValidators: true // Update validators validate the update operation against the model's schema
-  })
+exports.createTour = factory.createOne(Tour)
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: updatedTour
-    }
-  })
-})
+// exports.updateTour = catchAsync(async (req, res, next) => {
+//   const id = req.params.id
+//   const updatedTour = await Tour.findByIdAndUpdate(id, req.body, {
+//     new: true, // return the modified document rather than the original
+//     runValidators: true // Update validators validate the update operation against the model's schema
+//   })
 
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const id = req.params.id
-  await Tour.findByIdAndDelete(id)
-  res.status(204).json({
-    status: 'success',
-    data: null
-  })
-})
+//   res.status(200).json({
+//     status: 'success',
+//     data: {
+//       tour: updatedTour
+//     }
+//   })
+// })
+
+// DO NOT update password with this
+exports.updateTour = factory.updateOne(Tour)
+
+// exports.deleteTour = catchAsync(async (req, res, next) => {
+//   const id = req.params.id
+//   await Tour.findByIdAndDelete(id)
+//   res.status(204).json({
+//     status: 'success',
+//     data: null
+//   })
+// })
+
+exports.deleteTour = factory.deleteOne(Tour)
