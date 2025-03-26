@@ -84,6 +84,9 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
   }
 }
 
+// Create index to make the user and the tour are unique
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true })
+
 // Should use the post middleware instead of pre middleware because the pre middleware will be executed before the document is saved to DB,
 // so it's no document to aggregate
 reviewSchema.post('save', function (doc, next) {
