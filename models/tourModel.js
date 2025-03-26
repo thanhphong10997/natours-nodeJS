@@ -48,7 +48,7 @@ const tourSchema = new mongoose.Schema(
       // validator
       // enum validator can only be used for String
       enum: {
-        values: ['easy', 'medium', 'difficulty'],
+        values: ['easy', 'medium', 'difficult'],
         message: 'Difficulty is either: easy, medium or difficult'
       }
     },
@@ -132,13 +132,19 @@ const tourSchema = new mongoose.Schema(
   }
 )
 
+// add indexes to increase performance
+// NOTE: INDEXES will reduce the time of the query to go through all of the documents, but it only fit with hight read/write ratio, which mean mostly reading document,
+// if the document writes usually, it not ideally to use the indexes
+tourSchema.index({ slug: 1 }) // add slug to indexes
+tourSchema.index({ price: 1, ratingsAverage: -1 }) // add price and ratingsAverage to indexes which called COMPOUND (combine of indexes). '-' which mean descending
+
 // create a virtual property which will be shown after user gets data from the database (not stored in the DB)
 // Note: can't use virtual for query because virtual properties is not a part of the DB
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7
 })
 
-// Virtual populate
+// Virtual populate to get specific reviews base on tour ID
 tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour', // point to the tour property on the Review model

@@ -71,6 +71,7 @@ exports.getAll = Model =>
     const features = new APIFeatures(Model.find(filter), queryParams).filter().sort().limitFields().paginate()
 
     // execute the query
+    // const doc = await features.explain()   show the statistics of the query results
     const doc = await features.query
 
     // Send response

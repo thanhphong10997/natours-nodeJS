@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema({
 // hash the password before save document to DB
 userSchema.pre('save', async function (next) {
   // "this" point to the current document
+  // only run this function if password was actually modified
   if (!this.isModified('password')) return next()
 
   // 12 which means measure how cpu intensive will be
@@ -78,6 +79,7 @@ userSchema.pre(/^find/, function (next) {
   next()
 })
 
+// Instance method will be existed when the document is created
 // Compare password from user request to user password in DB (true => same, false => different)
 userSchema.methods.correctPassword = async function (candidatePassword, userPassword) {
   return await bcrypt.compare(candidatePassword, userPassword) // candidate password is the password that user send to server and user password is the password (hashed) stored in DB
