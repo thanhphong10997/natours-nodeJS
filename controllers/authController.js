@@ -25,7 +25,7 @@ const createSendToken = (user, statusCode, res) => {
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true // add secure for https method
 
   // create cookie
-  res.cookie('jwt', token, cookieOptions)
+  // res.cookie('jwt', token, cookieOptions)
 
   // remove password from output
   user.password = undefined
@@ -84,9 +84,11 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2. Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET) // promisify convert a function to Promise (promisify take a function as argument)
+
   // 3. Check if user still exists
   // Ex: user can not be authenticated (the token is not valid) if their accounts is deleted for some reason
   const currentUser = await User.findById(decoded.id)
+
   if (!currentUser) return next(new AppError('The user belonging to this token does no longer exist', 401))
 
   // 4. Check if user changed password after the token was issued
