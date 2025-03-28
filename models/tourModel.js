@@ -118,7 +118,7 @@ const tourSchema = new mongoose.Schema(
         day: Number
       }
     ],
-    // guides: Array    // define for embedding method
+    // guides: Array    // define for embedding method (will use the pre('save) method to embed data to the guides array)
     // define for reference method (child reference)
     guides: [
       {
@@ -140,7 +140,7 @@ const tourSchema = new mongoose.Schema(
 // if the document writes usually, it not ideally to use the indexes
 tourSchema.index({ slug: 1 }) // add slug to indexes
 tourSchema.index({ price: 1, ratingsAverage: -1 }) // add price and ratingsAverage to indexes which called COMPOUND (combine of indexes). '-' which mean descending
-
+tourSchema.index({ startLocation: '2dsphere' }) // use '2dshere' to describe a REAL point on the Earth like sphere - use '2d' to describe FICTIONAL point on a two dimensional plane
 // create a virtual property which will be shown after user gets data from the database (not stored in the DB)
 // Note: can't use virtual for query because virtual properties is not a part of the DB
 tourSchema.virtual('durationWeeks').get(function () {
@@ -209,13 +209,14 @@ tourSchema.pre(/^find/, function (next) {
 // ******* Embedding the user document to the tour document
 
 // ******* Aggregation middleware
-tourSchema.pre('aggregate', function (next) {
-  // this.pipeline() is an array containing all the aggregation stages so we can add a new stage using the method of array
-  this.pipeline().unshift({
-    $match: { secretTour: { $ne: true } }
-  })
-  next()
-})
+// Comment to fix the error: $geoNear was not the first stage in the pipeline
+// tourSchema.pre('aggregate', function (next) {
+//   // this.pipeline() is an array containing all the aggregation stages so we can add a new stage using the method of array
+//   this.pipeline().unshift({
+//     $match: { secretTour: { $ne: true } }
+//   })
+//   next()
+// })
 // ******* Aggregation middleware
 
 const Tour = mongoose.model('Tour', tourSchema)

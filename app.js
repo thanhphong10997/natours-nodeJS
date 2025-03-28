@@ -6,6 +6,7 @@ const helmet = require('helmet')
 const mongoSanitize = require('express-mongo-sanitize')
 const xss = require('xss-clean')
 const hpp = require('hpp')
+const cookieParser = require('cookie-parser')
 
 const AppError = require('./utils/appError')
 const globalErrorHandler = require('./controllers/errorController')
@@ -35,6 +36,7 @@ app.use('/api', limiter) // apply the limiter middleware for all routes which in
 
 // Body parser, reading the data from body into req.body
 app.use(express.json({ limit: '10kb' })) // limit the body size
+app.use(cookieParser()) // parse all cookies from the request
 
 // Data sanitization against NoSQL injection
 // Explain: this package will looks for request body, request params and request query string and filter to remove all '$' sign and '.' because that how mongoDB is written
@@ -60,6 +62,7 @@ app.use(
 // define a new property for the request
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString()
+  console.log('cookies', req.cookies)
   next()
 })
 
