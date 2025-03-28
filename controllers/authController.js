@@ -25,7 +25,7 @@ const createSendToken = (user, statusCode, res) => {
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true // add secure for https method
 
   // create cookie
-  // res.cookie('jwt', token, cookieOptions)
+  res.cookie('jwt', token, cookieOptions)
 
   // remove password from output
   user.password = undefined
@@ -76,6 +76,9 @@ exports.protect = catchAsync(async (req, res, next) => {
   let token
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1]
+  } else if (req.cookies.jwt) {
+    // jwt is the name of the cookie that we've set
+    token = req.cookies.jwt
   }
 
   if (!token) {
